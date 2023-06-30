@@ -1,0 +1,178 @@
+---
+version: "3.7"
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - JELLYFIN_PublishedServerUrl=192.168.0.14 #optional
+    volumes:
+      - /mnt/nvme/library:/config
+      - /mnt/nvme/transmission-downloads/complete/sonarr-tvseries:/data/tvshows
+      - /mnt/nvme/transmission-downloads/complete/radarr-movies:/data/movies
+      - /mnt/nvme/transmission-downloads/incomplete/:/data/incomplete
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1900:1900/udp #optional
+    restart: unless-stopped
+  gluetun:
+    image: qmcgaw/gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
+#      - WIREGUARD_PRIVATE_KEY=
+#      - WIREGUARD_PUBLIC_KEY=
+#      - VPN_ENDPOINT_IP=
+      - VPN_ENDPOINT_PORT=51820
+      - WIREGUARD_ADDRESSES=10.2.0.2/32
+      - DNS_ADDRESS=10.2.0.1
+    ports:
+      # Transmission ports
+      - "0.0.0.0:9091:9091/tcp"   # <-- ports go here, not below
+      - 51413:51413/tcp
+      - 51413:51413/udp
+      # Radarr ports
+      - "7878:7878"
+      # Sonarr ports
+      - "8989:8989"
+      # Prowlarr ports
+      - "9696:9696"
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    network_mode: "service:gluetun"  # <-- important bit, don't forget
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - UMASK=022
+      - TRANSMISSION_WEB_HOME=/flood-for-transmission/ 
+    volumes:
+      - /mnt/nvme/transmission-downloads:/downloads
+      - /mnt/nvme/transmission-config:/config
+    restart: unless-stopped
+
+  # https://github.com/linuxserver/docker-radarr
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    network_mode: "service:gluetun"  # <-- important bit, don't forget
+    restart: unless-stopped
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/Berlin
+      - UMASK=022 #To make new files with correct permissions
+    volumes:
+      - /mnt/nvme/radarr:/config
+      - /mnt/nvme/transmission-downloads/complete/radarr-movies:/movies
+      - /mnt/nvme/downloads/completed:/downloads
+
+  # https://github.com/linuxserver/docker-sonarr
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    network_mode: "service:gluetun"  # <-- important bit, don't forget
+    restart: unless-stopped
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/Berlin
+      - UMASK=022
+    volumes:
+      - /mnt/nvme/sonarr:/config
+      - /mnt/nvme/transmission-downloads/complete/sonarr-tvseries:/tv
+      - /mnt/nvme/downloads/completed:/downloads
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/Berlin
+      - UMASK=022
+    volumes:
+      - /mnt/nvme/lidarr:/config
+      - /mnt/nmve/music:/music #optional
+      - /mnt/nvme/transmission-downloads/complete:/downloads #optional
+    ports:
+      - 8686:8686
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/Berlin
+      - UMASK=022
+    volumes:
+      - /mnt/nvme/bazarr:/config
+      - /mnt/nvme/transmission-downloads/complete/radarr-movies:/movies #optional
+      - /mnt/nvme/transmission-downloads/complete/sonarr-tvseries:/tv #optional
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+
+  # https://github.com/linuxserver/docker-prowlarr
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    container_name: prowlarr
+    network_mode: "service:gluetun"  # <-- important bit, don't forget
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PGID=1000
+      - PUID=1000
+      - TZ=Europe/Berlin
+      - UMASK=022 #To make new files with correct permissions
+    volumes:
+      - /mnt/nvme/prowlarr:/config
+      - /mnt/nvme/downloads/watch:/downloads  # transmission watch directory
+
+  # https://github.com/dperson/samba
+  samba:
+    image: dperson/samba:latest
+    container_name: samba
+    restart: always
+    # NOTE: see https://github.com/dperson/samba#troubleshooting
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    ports:
+      - "139:139"
+      - "445:445"
+    environment:
+      - USERID=1000
+      - GROUPID=1000
+      - SHARE=Media;/media
+      - TZ=Europe/Berlin
+      - UMASK=022
+    volumes:
+      - /mnt/nvme:/media
+
+  # Homeassistant https://www.home-assistant.io/installation/raspberrypi
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - /mnt/nvme/homeassistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+        #ports:
+        #      - "8123:8123"
+        #      - "8300:8300"
+        #      - "51827:51827"
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
