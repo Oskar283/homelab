@@ -13,10 +13,9 @@ services:
       - TZ=Europe/London
       - JELLYFIN_PublishedServerUrl=192.168.0.14 #optional
     volumes:
-      - /mnt/nvme/library:/config
+      - /mnt/nvme/jellyfin-config:/config
       - /mnt/nvme/transmission-downloads/complete/sonarr-tvseries:/data/tvshows
       - /mnt/nvme/transmission-downloads/complete/radarr-movies:/data/movies
-      - /mnt/nvme/transmission-downloads/incomplete/:/data/incomplete
     ports:
       - 8096:8096
       - 8920:8920 #optional
@@ -38,7 +37,7 @@ services:
       - DNS_ADDRESS=10.2.0.1
     ports:
       # Transmission ports
-      - "0.0.0.0:9091:9091/tcp"   # <-- ports go here, not below
+      - 9091:9091/tcp   # <-- ports go here, not below
       - 51413:51413/tcp
       - 51413:51413/udp
       # Radarr ports
