@@ -102,9 +102,9 @@ services:
       - TZ=Europe/Berlin
       - UMASK=022
     volumes:
-      - /mnt/nvme/lidarr:/config
+      - /mnt/nvme/lidarr-config:/config
       - /mnt/nmve/music:/music #optional
-      - /mnt/nvme/transmission-downloads/complete:/downloads #optional
+      - /mnt/nvme/transmission-downloads/complete/lidarr-music:/downloads #optional
     ports:
       - 8686:8686
     restart: unless-stopped
