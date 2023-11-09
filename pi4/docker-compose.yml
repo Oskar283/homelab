@@ -103,7 +103,7 @@ services:
       - UMASK=022
     volumes:
       - /mnt/nvme/lidarr-config:/config
-      - /mnt/nmve/music:/music #optional
+      - /mnt/nvme/lidarr-music:/music #optional
       - /mnt/nvme/transmission-downloads/complete/lidarr-music:/downloads #optional
     ports:
       - 8686:8686
