@@ -15,6 +15,4 @@ Run it
 ## Option 2
 Clone repo and run when Rpi is already running
 
-# Todo
-
-- Install programs based on rpi purpose (Dev station, kubernetes node)
+```sudo -E -H ./setup_rpi.sh```
