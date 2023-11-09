@@ -47,6 +47,8 @@ then
   popd
 else
   git clone https://github.com/Oskar283/dotfiles $dir
+  $SUDO chgrp -R $USER $dir
+  $SUDO chown -R $USER $dir
 fi
 
 /bin/bash $dir/install # Install dotfiles
