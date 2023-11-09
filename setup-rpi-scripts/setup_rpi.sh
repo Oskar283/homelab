@@ -51,9 +51,9 @@ do_audio 0                # Auto select audio output device
 
 # System Configuration
 do_configure_keyboard se
-do_hostname rpi
+do_hostname pi
 do_wifi_country SE
-do_wifi_ssid_passphrase Hobbits5 rlbetting
+do_wifi_ssid_passphrase hobbits rlbetting
 do_change_timezone Sweden/Stockholm
 do_change_locale en_US.UTF-8
 
