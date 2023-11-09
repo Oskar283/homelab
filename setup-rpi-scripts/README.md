@@ -15,4 +15,4 @@ Run it
 ## Option 2
 Clone repo and run when Rpi is already running
 
-```sudo -E -H ./setup_rpi.sh```
+```sudo -E ./setup_rpi.sh```
