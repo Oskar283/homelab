@@ -7,7 +7,7 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - /mnt/nvme/homeassistant/config:/config
+      - /home/pi/homeassistant_config/config:/config
       - /etc/localtime:/etc/localtime:ro
         #ports:
         #      - "8123:8123"
