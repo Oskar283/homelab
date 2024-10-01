@@ -1,8 +1,6 @@
 ---
 version: "3.7"
 
-
-
 services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
@@ -163,18 +161,3 @@ services:
       - UMASK=022
     volumes:
       - /mnt/nvme:/media
-
-  # Homeassistant https://www.home-assistant.io/installation/raspberrypi
-  homeassistant:
-    container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:stable"
-    volumes:
-      - /mnt/nvme/homeassistant/config:/config
-      - /etc/localtime:/etc/localtime:ro
-        #ports:
-        #      - "8123:8123"
-        #      - "8300:8300"
-        #      - "51827:51827"
-    restart: unless-stopped
-    privileged: true
-    network_mode: host
