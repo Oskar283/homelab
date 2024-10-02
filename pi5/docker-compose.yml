@@ -9,10 +9,16 @@ services:
     volumes:
       - /home/pi/homeassistant_config/config:/config
       - /etc/localtime:/etc/localtime:ro
-        #ports:
-        #      - "8123:8123"
-        #      - "8300:8300"
-        #      - "51827:51827"
+      # The dbus volume is essential to make bluetooth work
+      - /run/dbus:/run/dbus:ro # Essential
+    #ports:
+    #      - "8123:8123"
+    #      - "8300:8300"
+    #      - "51827:51827"
+    devices:
+    - /dev/ttyUSB0:/dev/ttyUSB0
+    - /dev/ttyUSB1:/dev/ttyUSB1
+    - /dev/serial:/dev/serial
     restart: unless-stopped
     privileged: true
     network_mode: host
