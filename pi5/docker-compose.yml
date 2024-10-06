@@ -7,7 +7,7 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - /home/pi/homeassistant_config/config:/config
+      - /home/pi/homelab/pi5/homeassistant_config/:/config
       - /etc/localtime:/etc/localtime:ro
       # The dbus volume is essential to make bluetooth work
       - /run/dbus:/run/dbus:ro # Essential

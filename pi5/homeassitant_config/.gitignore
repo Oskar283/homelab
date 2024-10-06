@@ -1,0 +1,65 @@
+s -lovelace
+## Ignore all
+*
+**
+
+## Allow folders
+# !*/
+!/automation2/
+!/automation2/*.yaml
+!custom_components/
+!custom_components/
+
+## Allow files
+!.HA_VERSION
+!.gitkeep
+!.gitignore
+!LICENSE
+!README.md
+!alert.yaml
+!automations.yaml
+!configuration.yaml
+!scenes.yaml
+!scripts.yaml
+!advanced_cheapest_hours_non_sequential.yaml
+!www/apexcharts.js
+
+############# Failsafe  \/ \/ \/ \/ \/ #############
+
+# File Ignores
+home-assistant.log.*
+remote_cmd.yaml
+**secrets.yaml
+shell_command.yaml
+**/test.yaml
+/zigbee2mqtt/*.yaml
+
+# Generic ignores
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.pyc
+._*
+__pycache__
+
+# Directory (contents) ignores
+/blueprints/automation/test**
+/blueprints/script/test**
+/Purgatory**
+/scripts/
+/themes**
+/.storage/auth**
+/.storage/cloud**
+/.storage/core**
+/.storage/hacs**
+/.storage/http
+*/deps**
+*/image**
+*/pop.git**
+*test**
+
+# Ignore files created by IDE's
+*&/.vscode**
+*/.theia**
+*/.Trash**
