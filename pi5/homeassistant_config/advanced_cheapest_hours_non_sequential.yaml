@@ -105,13 +105,14 @@ automation:
         value_template: '{{ trigger.event == ''start'' }}'
       then:
       # CHANGE-ME: Actions to do when cheap hour starts
-      - service: input_boolean.turn_on
+      - service: switch.turn_on
+
         #        entity_id: switch.f9225aaa5adb6123cfdec3056bc09a12 #Luftavfuktare Switch
         entity_id: switch.luftavfuktare_strombrytare_switch
 
       else:
       # CHANGE-ME: Actions to do when cheap hour ends
-      - service: input_boolean.turn_off
+      - service: switch.turn_off
         entity_id: switch.luftavfuktare_strombrytare_switch
           #entity_id: switch.f9225aaa5adb6123cfdec3056bc09a12 #Luftavfuktare Switch
     mode: single
