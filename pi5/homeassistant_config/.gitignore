@@ -4,11 +4,15 @@ s -lovelace
 **
 
 ## Allow folders
-# !*/
+!*/
 !/automation2/
 !/automation2/*.yaml
-!custom_components/
-!custom_components/
+!custom_components/                 # Allow 'custom_components' directory
+!custom_components/**               # Allow all subfolders and files inside
+!custom_components/nordpool/
+!custom_components/nordpool/**
+!custom_components/ev_smart_charging/
+!custom_components/ev_smart_charging/**
 
 ## Allow files
 !.HA_VERSION
