@@ -13,6 +13,8 @@ s -lovelace
 !custom_components/nordpool/**
 !custom_components/ev_smart_charging/
 !custom_components/ev_smart_charging/**
+!custom_components/kia_uvo/
+!custom_components/kia_uvo/**
 
 ## Allow files
 !.HA_VERSION
