@@ -5,10 +5,11 @@ services:
   # Homeassistant https://www.home-assistant.io/installation/raspberrypi
   homeassistant:
     container_name: homeassistant
+      #    user: "ha_root:ha_root_group"
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - nfs_mount:/config  # Mount the NFS share directly
-      #    - /home/pi/homelab/pi5/homeassistant_config/:/config
+      # - nfs_mount:/config  # Mount the NFS share directly
+      - /home/pi/homelab/pi5/homeassistant_config/:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro # Essential to make bluetooth work
     #ports:
