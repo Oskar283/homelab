@@ -7,18 +7,26 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - /home/pi/homelab/pi5/homeassistant_config/:/config
+      - nfs_mount:/config  # Mount the NFS share directly
+      #    - /home/pi/homelab/pi5/homeassistant_config/:/config
       - /etc/localtime:/etc/localtime:ro
-      # The dbus volume is essential to make bluetooth work
-      - /run/dbus:/run/dbus:ro # Essential
+      - /run/dbus:/run/dbus:ro # Essential to make bluetooth work
     #ports:
     #      - "8123:8123"
     #      - "8300:8300"
     #      - "51827:51827"
     devices:
-    - /dev/ttyUSB0:/dev/ttyUSB0
-    - /dev/ttyUSB1:/dev/ttyUSB1
-    - /dev/serial:/dev/serial
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+      - /dev/serial:/dev/serial
     restart: unless-stopped
     privileged: true
     network_mode: host
+
+volumes:
+  nfs_mount:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.0.39,rw
+      device: ":/mnt/tank/set1/homeassistant_config"
