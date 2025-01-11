@@ -10,6 +10,11 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+
+resources:
+  - url: /local/apexcharts-card.js?v=2.1.2
+    type: module
+
 #Custom added
 # Advanced Nord Pool Cheapest Hours automation (non-sequential
 # https://www.creatingsmarthome.com/index.php/2023/11/12/home-assistant-advanced-nord-pool-cheapest-hours-automation-non-sequential/
