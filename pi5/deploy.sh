@@ -4,7 +4,7 @@
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # Path to the NFS mount (you will replace this with your actual mount point)
-MOUNT_FOLDER="$REPO_ROOT/pi5/mount_config/homeassistant_config"  # Relative path to the mount config
+MOUNT_FOLDER="$REPO_ROOT/pi5/homeassistant_config_and_data"  # Relative path to the mount config
 
 # Exit if we're not in a git repo
 if [ ! -d "$REPO_ROOT/.git" ]; then
@@ -12,7 +12,7 @@ if [ ! -d "$REPO_ROOT/.git" ]; then
     exit 1
 fi
 
-# Ensure the 'homeassistant_config' folder exists
+# Ensure the folder exists
 if [ ! -d "$MOUNT_FOLDER" ]; then
     echo "Error: '$MOUNT_FOLDER' folder not found in the repository."
     exit 1
