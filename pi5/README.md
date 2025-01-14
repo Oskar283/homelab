@@ -14,6 +14,7 @@ mkdir -p /mnt/pi5_var_lib_docker nfs
 
 ```
 192.168.0.39:/mnt/tank/set1/pi5_var_lib_docker /mnt/pi5_var_lib_docker nfs  defaults  0  0
+192.168.0.39:/mnt/tank/set1/homeassistant_config_and_data /mnt/homeassistant_config_and_data nfs  defaults  0  0
 ```
 
     192.168.0.39:/mnt/tank/set1/pi5_var_lib_docker: This is the NFS server and the shared folder you want to mount.
