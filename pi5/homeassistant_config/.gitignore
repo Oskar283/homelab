@@ -15,6 +15,8 @@ s -lovelace
 !custom_components/ev_smart_charging/**
 !custom_components/kia_uvo/
 !custom_components/kia_uvo/**
+!www/
+!www/**
 
 ## Allow files
 !.HA_VERSION
