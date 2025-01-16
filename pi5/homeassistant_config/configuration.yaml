@@ -2,6 +2,10 @@
 # Loads default set of integrations. Do not remove.
 default_config:
 
+resources:
+  - url: /local/apexcharts-card.js?v=2.1.2
+    type: module
+
 # Load frontend themes from the themes folder
 frontend:
   themes: !include_dir_merge_named themes
@@ -10,15 +14,10 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-
-resources:
-  - url: /local/apexcharts-card.js?v=2.1.2
-    type: module
-
 #Custom added
 # Advanced Nord Pool Cheapest Hours automation (non-sequential
 # https://www.creatingsmarthome.com/index.php/2023/11/12/home-assistant-advanced-nord-pool-cheapest-hours-automation-non-sequential/
-# Spot prices gui https://github.com/RomRider/apexcharts-card Installed through gui 
+# Spot prices gui https://github.com/RomRider/apexcharts-card Installed through gui
 homeassistant:
   packages:
     cheapest_hours: !include advanced_cheapest_hours_non_sequential.yaml
