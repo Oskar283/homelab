@@ -13,7 +13,6 @@ mkdir -p /mnt/pi5_var_lib_docker nfs
 `<NFS_Server>:<Remote_Directory>  <Local_Mount_Point>  nfs  <options>  0  0`
 
 ```
-192.168.0.39:/mnt/tank/set1/pi5_var_lib_docker /mnt/pi5_var_lib_docker nfs  defaults  0  0
 192.168.0.39:/mnt/tank/set1/homeassistant_config_and_data /mnt/homeassistant_config_and_data nfs  defaults  0  0
 ```
 
@@ -29,14 +28,14 @@ It should now always be there on boot. If it's not, boot will fail
 ## 2. add it to /etc/docker/daemon.json
 ```
 {
-    "data-root": "/mnt/pi5_var_lib_docker"
+    "data-root": "/mnt/homeassistant_config_and_data/pi5_var_lib_docker"
 }
 ```
 
 # Deploy updates from repo.
 
 ## 1. Mount NFS folder temp
-sudo mount -t nfs 192.168.0.39:/mnt/tank/set1 ~/homelab/pi5/mount_config/
+sudo mount -t nfs 192.168.0.39:/mnt/tank/set1/ ~/homelab/pi5/mount_config/
 
 ## 2. run: bash ./deploy.sh
 
