@@ -22,19 +22,21 @@ fi
 FILES_TO_DEPLOY=$(git ls-files --exclude-standard | grep "^homeassistant_config/")
 
 # Ensure the destination folder exists
-DEST_PATH="$MOUNT_FOLDER"
-mkdir -p "$DEST_PATH"
+mkdir -p "$MOUNT_FOLDER"
 
 # Loop through each file and copy it to the mount config destination
 for FILE in $FILES_TO_DEPLOY; do
+    # Remove the 'homeassistant_config/' prefix from the file path
+    RELATIVE_PATH=${FILE#homeassistant_config/}
+
     # Get the destination path within the mount config
-    DEST_FILE="$DEST_PATH/$FILE"
+    DEST_FILE="$MOUNT_FOLDER/$RELATIVE_PATH"
 
     # Create the necessary directory structure in the mount config
     mkdir -p "$(dirname "$DEST_FILE")"
 
     # Copy the file to the destination
-    cp --parents "$FILE" "$DEST_PATH"
+    cp "$FILE" "$DEST_FILE"
 
     echo "Deployed $FILE to $DEST_FILE"
 done
