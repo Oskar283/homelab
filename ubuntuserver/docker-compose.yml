@@ -10,6 +10,20 @@ x-volume-config: &downloads-volume-config
   volume:
     subpath: downloads
 
+x-volume-config: &movies-volume-config
+  type: volume
+  source: media
+  target: /movies
+  volume:
+    subpath: movies
+
+x-volume-config: &tv-volume-config
+  type: volume
+  source: media
+  target: /tv
+  volume:
+    subpath: tv
+
 services:
   # Temporary service to create directories if the NFS that is needed
   setup:
@@ -18,8 +32,11 @@ services:
       /bin/sh -c "mkdir -p
       /configs/sonarr_config 
       /configs/radarr_config
+      /configs/lidarr_config
+      /configs/bazarr_config
       /media/tv 
       /media/movies 
+      /media/music 
       /media/downloads && exit 0"
     volumes:
       - media:/media
@@ -35,11 +52,7 @@ services:
       target: /config
       volume:
         subpath: sonarr_config
-    - type: volume
-      source: media
-      target: /tv
-      volume:
-        subpath: tv
+    - *tv-volume-config
     - *downloads-volume-config
     environment: *env-vars
     ports:
@@ -59,11 +72,7 @@ services:
         target: /config
         volume:
           subpath: radarr_config
-      - type: volume
-        source: media
-        target: /movies
-        volume:
-          subpath: movies
+      - *movies-volume-config
       - *downloads-volume-config
     ports:
       - 7878:7878
@@ -97,19 +106,28 @@ services:
     depends_on:
       - setup
 
-#    bazarr:
-#      image: linuxserver/bazarr
-#      container_name: bazarr
-#      environment:
-#        - PUID=1000
-#        - PGID=1000
-#        - TZ=Etc/UTC
-#      volumes:
-#        - bazarr_config:/config
-#        - media:/tv
-#      ports:
-#        - 6767:6767
-#      restart: unless-stopped
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment: *env-vars
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: bazarr_config
+      - *tv-volume-config
+      - *movies-volume-config
+      - *downloads-volume-config
+    restart: unless-stopped
+    networks:
+      - internal_network
+    depends_on:
+      - setup
+
 #  
 #    readarr:
 #      image: linuxserver/readarr
