@@ -15,8 +15,11 @@ services:
   setup:
     image: alpine
     command: >
-      /bin/sh -c "mkdir -p /configs/sonarr_config 
+      /bin/sh -c "mkdir -p
+      /configs/sonarr_config 
+      /configs/radarr_config
       /media/tv 
+      /media/movies 
       /media/downloads && exit 0"
     volumes:
       - media:/media
@@ -24,9 +27,6 @@ services:
     environment: *env-vars
     restart: "no"
   sonarr:
-    # Need to Enable hardlinks through Sonarr's UI (Settings -> Media Management -> Use Hardlinks instead of Copy)
-    # This setting ensures that Sonarr creates hardlinks when it moves or renames files, preventing
-    # issues with Transmission seeding and ensuring no file duplication.
     image: linuxserver/sonarr
     container_name: sonarr
     volumes:
@@ -47,39 +47,27 @@ services:
     networks:
       - internal_network
 
-networks:
-  internal_network:
-    driver: bridge
-
-volumes:
-  configs:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=192.168.0.39,rw,nfsvers=4
-      device: ":/mnt/tank/set1/configs"
-
-  media:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=192.168.0.39,rw,nfsvers=4
-      device: ":/mnt/tank/set1/media/"
-
-#  radarr:
-#    image: linuxserver/radarr
-#    container_name: radarr
-#    environment:
-#      - PUID=1000
-#      - PGID=1000
-#      - TZ=Etc/UTC
-#    volumes:
-#      - radarr_config:/config
-#      - media:/movies
-#      - downloads:/downloads
-#    ports:
-#      - 7878:7878
-#    restart: unless-stopped
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment: *env-vars
+    volumes:
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: radarr_config
+      - type: volume
+        source: media
+        target: /movies
+        volume:
+          subpath: movies
+      - *downloads-volume-config
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    networks:
+      - internal_network
 #
 #  lidarr:
 #    image: linuxserver/lidarr
@@ -157,7 +145,7 @@ volumes:
 #      image: linuxserver/photoprism
 #      container_name: photoprism
 #      environment:
-#        - PHOTOPRISM_ADMIN_PASSWORD=yourpassword
+#        - PHOTOPRISM_ADMIN_PASSWORD=photoprism
 #      volumes:
 #        - photoprism_config:/photoprism/storage
 #        - media:/photoprism/originals
@@ -189,3 +177,23 @@ volumes:
 #        - 8080:8080
 #      restart: unless-stopped
 #
+
+networks:
+  internal_network:
+    driver: bridge
+
+volumes:
+  configs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.0.39,rw,nfsvers=4
+      device: ":/mnt/tank/set1/configs"
+
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.0.39,rw,nfsvers=4
+      device: ":/mnt/tank/set1/media/"
+
