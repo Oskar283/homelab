@@ -3,21 +3,21 @@ x-environment-variables: &env-vars
   - PGID=1000
   - TZ=Etc/UTC
 
-x-volume-config: &downloads-volume-config
+x-downloads-volume-config: &downloads-volume-config
   type: volume
   source: media
   target: /downloads
   volume:
     subpath: downloads
 
-x-volume-config: &movies-volume-config
+x-movies-volume-config: &movies-volume-config
   type: volume
   source: media
   target: /movies
   volume:
     subpath: movies
 
-x-volume-config: &tv-volume-config
+x-tv-volume-config: &tv-volume-config
   type: volume
   source: media
   target: /tv
@@ -34,15 +34,19 @@ services:
       /configs/radarr_config
       /configs/lidarr_config
       /configs/bazarr_config
+      /configs/readarr_config
+      /configs/prowlarr_config
       /media/tv 
       /media/movies 
       /media/music 
+      /media/books
       /media/downloads && exit 0"
     volumes:
       - media:/media
       - configs:/configs
     environment: *env-vars
     restart: "no"
+
   sonarr:
     image: linuxserver/sonarr
     container_name: sonarr
@@ -110,9 +114,6 @@ services:
     image: linuxserver/bazarr
     container_name: bazarr
     environment: *env-vars
-    ports:
-      - 6767:6767
-    restart: unless-stopped
     volumes:
       - type: volume
         source: configs
@@ -122,41 +123,56 @@ services:
       - *tv-volume-config
       - *movies-volume-config
       - *downloads-volume-config
+    ports:
+      - 6767:6767
     restart: unless-stopped
     networks:
       - internal_network
     depends_on:
       - setup
 
-#  
-#    readarr:
-#      image: linuxserver/readarr
-#      container_name: readarr
-#      environment:
-#        - PUID=1000
-#        - PGID=1000
-#        - TZ=Etc/UTC
-#      volumes:
-#        - readarr_config:/config
-#        - media:/books
-#        - downloads:/downloads
-#      ports:
-#        - 8787:8787
-#      restart: unless-stopped
-#  
-#    prowlarr:
-#      image: linuxserver/prowlarr
-#      container_name: prowlarr
-#      environment:
-#        - PUID=1000
-#        - PGID=1000
-#        - TZ=Etc/UTC
-#      volumes:
-#        - prowlarr_config:/config
-#        - media:/downloads
-#      ports:
-#        - 9696:9696
-#      restart: unless-stopped
+ 
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    environment: *env-vars
+    volumes:
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: readarr_config
+      - type: volume
+        source: media
+        target: /books
+        volume:
+          subpath: books
+      - *downloads-volume-config
+    ports:
+      - 8787:8787
+    restart: unless-stopped
+    networks:
+      - internal_network
+    depends_on:
+      - setup
+ 
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment: *env-vars
+    volumes:
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: prowlarr_config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    networks:
+      - internal_network
+    depends_on:
+      - setup
 #  
 #    jellyfin:
 #      image: linuxserver/jellyfin
