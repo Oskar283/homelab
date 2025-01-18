@@ -1,21 +1,49 @@
-version: '3.8'
 
 services:
+  # Temporary service to create directories if the NFS that is needed
+  setup:
+    image: alpine
+    volumes:
+      - media:/media
+      - configs:/configs
+    command: >
+      /bin/sh -c "mkdir -p /configs/sonarr_config 
+      /media/tv 
+      /media/tv_downloads && exit 0"
+    restart: "no"
+
   sonarr:
     image: linuxserver/sonarr
+    # Need to Enable hardlinks through Sonarr's UI (Settings -> Media Management -> Use Hardlinks instead of Copy)
+    # This setting ensures that Sonarr creates hardlinks when it moves or renames files, preventing
+    # issues with Transmission seeding and ensuring no file duplication.
     container_name: sonarr
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - sonarr_config:/config
-      - media:/tv
-      - downloads:/downloads
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: sonarr_config
+      - type: volume
+        source: media
+        target: /tv
+        volume:
+          subpath: media_tv
+      - type: volume
+        source: media
+        target: /downloads
+        volume:
+          subpath: media_tv_downloads
     ports:
       - 8989:8989
-    restart: unless-stopped
-  
+    depends_on:
+      - setup:
+        condition: service_completed_successfully
+
   #  radarr:
   #    image: linuxserver/radarr
   #    container_name: radarr
@@ -140,69 +168,16 @@ services:
   #    restart: unless-stopped
 
 volumes:
-  sonarr_config:
+  configs:
     driver: local
     driver_opts:
       type: nfs
       o: addr=192.168.0.39,rw
-      device: ":/mnt/tank/set1/configs/sonarr_config"
-        #  radarr_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/radarr_config"
-        #  lidarr_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/lidarr_config"
-        #  bazarr_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/bazarr_config"
-        #  readarr_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/readarr_config"
-        #  prowlarr_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/prowlarr_config"
-        #  jellyfin_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/jellyfin_config"
-        #  photoprism_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/photoprism_config"
-        #  frigate_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/configs/frigate_config"
-        #  vaultwarden_config:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/configs/vaultwarden_config"
-        #  media:
-        #    driver: local
-        #    driver_opts:
-        #      type: nfs
-        #      o: addr=192.168.0.39,rw
-        #      device: ":/mnt/tank/set1/media"
+      device: ":/mnt/tank/set1/configs"
+
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.0.39,rw
+      device: ":/mnt/tank/set1/media/"
