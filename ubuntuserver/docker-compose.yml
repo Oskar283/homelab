@@ -46,6 +46,8 @@ services:
       - 8989:8989
     networks:
       - internal_network
+    depends_on:
+      - setup
 
   radarr:
     image: linuxserver/radarr
@@ -68,6 +70,9 @@ services:
     restart: unless-stopped
     networks:
       - internal_network
+    depends_on:
+      - setup
+
 #
 #  lidarr:
 #    image: linuxserver/lidarr
