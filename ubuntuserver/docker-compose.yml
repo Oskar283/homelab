@@ -73,22 +73,30 @@ services:
     depends_on:
       - setup
 
-#
-#  lidarr:
-#    image: linuxserver/lidarr
-#    container_name: lidarr
-#    environment:
-#      - PUID=1000
-#      - PGID=1000
-#      - TZ=Etc/UTC
-#    volumes:
-#      - lidarr_config:/config
-#      - media:/music
-#      - downloads:/downloads
-#    ports:
-#      - 8686:8686
-#    restart: unless-stopped
-#
+  lidarr:
+    image: linuxserver/lidarr
+    container_name: lidarr
+    environment: *env-vars
+    volumes:
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: lidarr_config
+      - type: volume
+        source: media
+        target: /music
+        volume:
+          subpath: music
+      - *downloads-volume-config
+    ports:
+      - 8686:8686
+    restart: unless-stopped
+    networks:
+      - internal_network
+    depends_on:
+      - setup
+
 #    bazarr:
 #      image: linuxserver/bazarr
 #      container_name: bazarr
