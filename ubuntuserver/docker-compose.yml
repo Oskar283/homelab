@@ -1,3 +1,15 @@
+x-environment-variables: &env-vars
+  - PUID=1000
+  - PGID=1000
+  - TZ=Etc/UTC
+
+x-volume-config: &downloads-volume-config
+  type: volume
+  source: media
+  target: /downloads
+  volume:
+    subpath: downloads
+
 services:
   # Temporary service to create directories if the NFS that is needed
   setup:
@@ -5,13 +17,11 @@ services:
     command: >
       /bin/sh -c "mkdir -p /configs/sonarr_config 
       /media/tv 
-      /media/tv_downloads && exit 0"
+      /media/downloads && exit 0"
     volumes:
       - media:/media
       - configs:/configs
-    environment:
-      - PUID=1000
-      - PGID=1000 
+    environment: *env-vars
     restart: "no"
   sonarr:
     # Need to Enable hardlinks through Sonarr's UI (Settings -> Media Management -> Use Hardlinks instead of Copy)
@@ -30,17 +40,16 @@ services:
       target: /tv
       volume:
         subpath: tv
-    - type: volume
-      source: media
-      target: /downloads
-      volume:
-        subpath: tv_downloads
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
+    - *downloads-volume-config
+    environment: *env-vars
     ports:
       - 8989:8989
+    networks:
+      - internal_network
+
+networks:
+  internal_network:
+    driver: bridge
 
 volumes:
   configs:
@@ -57,126 +66,126 @@ volumes:
       o: addr=192.168.0.39,rw,nfsvers=4
       device: ":/mnt/tank/set1/media/"
 
-  #  radarr:
-  #    image: linuxserver/radarr
-  #    container_name: radarr
-  #    environment:
-  #      - PUID=1000
-  #      - PGID=1000
-  #      - TZ=Etc/UTC
-  #    volumes:
-  #      - radarr_config:/config
-  #      - media:/movies
-  #      - downloads:/downloads
-  #    ports:
-  #      - 7878:7878
-  #    restart: unless-stopped
-  #
-  #  lidarr:
-  #    image: linuxserver/lidarr
-  #    container_name: lidarr
-  #    environment:
-  #      - PUID=1000
-  #      - PGID=1000
-  #      - TZ=Etc/UTC
-  #    volumes:
-  #      - lidarr_config:/config
-  #      - media:/music
-  #      - downloads:/downloads
-  #    ports:
-  #      - 8686:8686
-  #    restart: unless-stopped
-  #
-  #  bazarr:
-  #    image: linuxserver/bazarr
-  #    container_name: bazarr
-  #    environment:
-  #      - PUID=1000
-  #      - PGID=1000
-  #      - TZ=Etc/UTC
-  #    volumes:
-  #      - bazarr_config:/config
-  #      - media:/tv
-  #    ports:
-  #      - 6767:6767
-  #    restart: unless-stopped
-  #
-  #  readarr:
-  #    image: linuxserver/readarr
-  #    container_name: readarr
-  #    environment:
-  #      - PUID=1000
-  #      - PGID=1000
-  #      - TZ=Etc/UTC
-  #    volumes:
-  #      - readarr_config:/config
-  #      - media:/books
-  #      - downloads:/downloads
-  #    ports:
-  #      - 8787:8787
-  #    restart: unless-stopped
-  #
-  #  prowlarr:
-  #    image: linuxserver/prowlarr
-  #    container_name: prowlarr
-  #    environment:
-  #      - PUID=1000
-  #      - PGID=1000
-  #      - TZ=Etc/UTC
-  #    volumes:
-  #      - prowlarr_config:/config
-  #      - media:/downloads
-  #    ports:
-  #      - 9696:9696
-  #    restart: unless-stopped
-  #
-  #  jellyfin:
-  #    image: linuxserver/jellyfin
-  #    container_name: jellyfin
-  #    environment:
-  #      - PUID=1000
-  #      - PGID=1000
-  #      - TZ=Etc/UTC
-  #    volumes:
-  #      - jellyfin_config:/config
-  #      - media:/media
-  #    ports:
-  #      - 8096:8096
-  #    restart: unless-stopped
-  #
-  #  photoprism:
-  #    image: linuxserver/photoprism
-  #    container_name: photoprism
-  #    environment:
-  #      - PHOTOPRISM_ADMIN_PASSWORD=yourpassword
-  #    volumes:
-  #      - photoprism_config:/photoprism/storage
-  #      - media:/photoprism/originals
-  #    ports:
-  #      - 2342:2342
-  #    restart: unless-stopped
-  #
-  #  frigate:
-  #    image: blakeblackshear/frigate
-  #    container_name: frigate
-  #    environment:
-  #      - FRIGATE_RTSP_PASSWORD=yourpassword
-  #    volumes:
-  #      - frigate_config:/config
-  #      - media:/media/frigate
-  #    ports:
-  #      - 5000:5000
-  #    restart: unless-stopped
-  #
-  #  vaultwarden:
-  #    image: linuxserver/vaultwarden
-  #    container_name: vaultwarden
-  #    environment:
-  #      - WEBSOCKET_ENABLED=true
-  #      - ADMIN_TOKEN=youradmintoken
-  #    volumes:
-  #      - vaultwarden_config:/data
-  #    ports:
-  #      - 8080:8080
-  #    restart: unless-stopped
-
+#  radarr:
+#    image: linuxserver/radarr
+#    container_name: radarr
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Etc/UTC
+#    volumes:
+#      - radarr_config:/config
+#      - media:/movies
+#      - downloads:/downloads
+#    ports:
+#      - 7878:7878
+#    restart: unless-stopped
+#
+#  lidarr:
+#    image: linuxserver/lidarr
+#    container_name: lidarr
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Etc/UTC
+#    volumes:
+#      - lidarr_config:/config
+#      - media:/music
+#      - downloads:/downloads
+#    ports:
+#      - 8686:8686
+#    restart: unless-stopped
+#
+#    bazarr:
+#      image: linuxserver/bazarr
+#      container_name: bazarr
+#      environment:
+#        - PUID=1000
+#        - PGID=1000
+#        - TZ=Etc/UTC
+#      volumes:
+#        - bazarr_config:/config
+#        - media:/tv
+#      ports:
+#        - 6767:6767
+#      restart: unless-stopped
+#  
+#    readarr:
+#      image: linuxserver/readarr
+#      container_name: readarr
+#      environment:
+#        - PUID=1000
+#        - PGID=1000
+#        - TZ=Etc/UTC
+#      volumes:
+#        - readarr_config:/config
+#        - media:/books
+#        - downloads:/downloads
+#      ports:
+#        - 8787:8787
+#      restart: unless-stopped
+#  
+#    prowlarr:
+#      image: linuxserver/prowlarr
+#      container_name: prowlarr
+#      environment:
+#        - PUID=1000
+#        - PGID=1000
+#        - TZ=Etc/UTC
+#      volumes:
+#        - prowlarr_config:/config
+#        - media:/downloads
+#      ports:
+#        - 9696:9696
+#      restart: unless-stopped
+#  
+#    jellyfin:
+#      image: linuxserver/jellyfin
+#      container_name: jellyfin
+#      environment:
+#        - PUID=1000
+#        - PGID=1000
+#        - TZ=Etc/UTC
+#      volumes:
+#        - jellyfin_config:/config
+#        - media:/media
+#      ports:
+#        - 8096:8096
+#      restart: unless-stopped
+#  
+#    photoprism:
+#      image: linuxserver/photoprism
+#      container_name: photoprism
+#      environment:
+#        - PHOTOPRISM_ADMIN_PASSWORD=yourpassword
+#      volumes:
+#        - photoprism_config:/photoprism/storage
+#        - media:/photoprism/originals
+#      ports:
+#        - 2342:2342
+#      restart: unless-stopped
+#  
+#    frigate:
+#      image: blakeblackshear/frigate
+#      container_name: frigate
+#      environment:
+#        - FRIGATE_RTSP_PASSWORD=yourpassword
+#      volumes:
+#        - frigate_config:/config
+#        - media:/media/frigate
+#      ports:
+#        - 5000:5000
+#      restart: unless-stopped
+#  
+#    vaultwarden:
+#      image: linuxserver/vaultwarden
+#      container_name: vaultwarden
+#      environment:
+#        - WEBSOCKET_ENABLED=true
+#        - ADMIN_TOKEN=youradmintoken
+#      volumes:
+#        - vaultwarden_config:/data
+#      ports:
+#        - 8080:8080
+#      restart: unless-stopped
+#
