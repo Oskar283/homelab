@@ -1,48 +1,61 @@
-
 services:
   # Temporary service to create directories if the NFS that is needed
   setup:
     image: alpine
-    volumes:
-      - media:/media
-      - configs:/configs
     command: >
       /bin/sh -c "mkdir -p /configs/sonarr_config 
       /media/tv 
       /media/tv_downloads && exit 0"
+    volumes:
+      - media:/media
+      - configs:/configs
+    environment:
+      - PUID=1000
+      - PGID=1000 
     restart: "no"
-
   sonarr:
-    image: linuxserver/sonarr
     # Need to Enable hardlinks through Sonarr's UI (Settings -> Media Management -> Use Hardlinks instead of Copy)
     # This setting ensures that Sonarr creates hardlinks when it moves or renames files, preventing
     # issues with Transmission seeding and ensuring no file duplication.
+    image: linuxserver/sonarr
     container_name: sonarr
+    volumes:
+    - type: volume
+      source: configs
+      target: /config
+      volume:
+        subpath: sonarr_config
+    - type: volume
+      source: media
+      target: /tv
+      volume:
+        subpath: tv
+    - type: volume
+      source: media
+      target: /downloads
+      volume:
+        subpath: tv_downloads
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-    volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: sonarr_config
-      - type: volume
-        source: media
-        target: /tv
-        volume:
-          subpath: media_tv
-      - type: volume
-        source: media
-        target: /downloads
-        volume:
-          subpath: media_tv_downloads
     ports:
       - 8989:8989
-    depends_on:
-      - setup:
-        condition: service_completed_successfully
+
+volumes:
+  configs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.0.39,rw,nfsvers=4
+      device: ":/mnt/tank/set1/configs"
+
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.0.39,rw,nfsvers=4
+      device: ":/mnt/tank/set1/media/"
 
   #  radarr:
   #    image: linuxserver/radarr
@@ -167,17 +180,3 @@ services:
   #      - 8080:8080
   #    restart: unless-stopped
 
-volumes:
-  configs:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=192.168.0.39,rw
-      device: ":/mnt/tank/set1/configs"
-
-  media:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=192.168.0.39,rw
-      device: ":/mnt/tank/set1/media/"
