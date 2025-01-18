@@ -173,21 +173,27 @@ services:
       - internal_network
     depends_on:
       - setup
-#  
-#    jellyfin:
-#      image: linuxserver/jellyfin
-#      container_name: jellyfin
-#      environment:
-#        - PUID=1000
-#        - PGID=1000
-#        - TZ=Etc/UTC
-#      volumes:
-#        - jellyfin_config:/config
-#        - media:/media
-#      ports:
-#        - 8096:8096
-#      restart: unless-stopped
-#  
+  
+  jellyfin:
+    image: linuxserver/jellyfin
+    container_name: jellyfin
+    environment: *env-vars
+    volumes:
+      - type: volume
+        source: configs
+        target: /config
+        volume:
+          subpath: jellyfin_config
+      - *tv-volume-config
+      - *movies-volume-config
+    ports:
+      - 8096:8096
+    restart: unless-stopped
+    networks:
+      - internal_network
+    depends_on:
+      - setup
+  
 #    photoprism:
 #      image: linuxserver/photoprism
 #      container_name: photoprism
