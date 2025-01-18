@@ -5,21 +5,21 @@ x-environment-variables: &env-vars
 
 x-downloads-volume-config: &downloads-volume-config
   type: volume
-  source: media
+  source: arrstack_data
   target: /downloads
   volume:
     subpath: downloads
 
 x-movies-volume-config: &movies-volume-config
   type: volume
-  source: media
+  source: arrstack_data
   target: /movies
   volume:
     subpath: movies
 
 x-tv-volume-config: &tv-volume-config
   type: volume
-  source: media
+  source: arrstack_data
   target: /tv
   volume:
     subpath: tv
@@ -37,13 +37,13 @@ services:
       /configs/readarr_config
       /configs/prowlarr_config
       /configs/jellyfin_config
-      /media/tv 
-      /media/movies 
-      /media/music 
-      /media/books
-      /media/downloads && exit 0"
+      /arrstack_data/tv 
+      /arrstack_data/movies 
+      /arrstack_data/music 
+      /arrstack_data/books
+      /arrstack_data/downloads && exit 0"
     volumes:
-      - media:/media
+      - arrstack_data:/arrstack_data
       - configs:/configs
     environment: *env-vars
     restart: "no"
@@ -98,7 +98,7 @@ services:
         volume:
           subpath: lidarr_config
       - type: volume
-        source: media
+        source: arrstack_data
         target: /music
         volume:
           subpath: music
@@ -144,7 +144,7 @@ services:
         volume:
           subpath: readarr_config
       - type: volume
-        source: media
+        source: arrstack_data
         target: /books
         volume:
           subpath: books
@@ -244,10 +244,10 @@ volumes:
       o: addr=192.168.0.39,rw,nfsvers=4
       device: ":/mnt/tank/set1/configs"
 
-  media:
+  arrstack_data:
     driver: local
     driver_opts:
       type: nfs
       o: addr=192.168.0.39,rw,nfsvers=4
-      device: ":/mnt/tank/set1/media/"
+      device: ":/mnt/tank/set1/arrstack_data"
 
