@@ -28,6 +28,7 @@ services:
   # Temporary service to create directories if the NFS that is needed
   setup:
     image: alpine
+    user: "1000:1000"
     command: >
       /bin/sh -c "mkdir -p
       /configs/sonarr_config 
@@ -41,10 +42,10 @@ services:
       /arrstack_data/movies 
       /arrstack_data/music 
       /arrstack_data/books
-      /arrstack_data/downloads && exit 0"
+      /arrstack_data/downloads" # && exit 0"
     volumes:
       - arrstack_data:/arrstack_data
-      - configs:/configs
+      - /home/ubuntuserver/local_configs:/configs
     environment: *env-vars
     restart: "no"
 
@@ -52,18 +53,12 @@ services:
     image: linuxserver/sonarr
     container_name: sonarr
     volumes:
-    - type: volume
-      source: configs
-      target: /config
-      volume:
-        subpath: sonarr_config
-    - *tv-volume-config
-    - *downloads-volume-config
+      - /home/ubuntuserver/local_configs/sonarr_config:/config
+      - *tv-volume-config
+      - *downloads-volume-config
     environment: *env-vars
     ports:
       - 8989:8989
-    networks:
-      - internal_network
     depends_on:
       - setup
 
@@ -72,18 +67,12 @@ services:
     container_name: radarr
     environment: *env-vars
     volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: radarr_config
+      - /home/ubuntuserver/local_configs/radarr_config:/config
       - *movies-volume-config
       - *downloads-volume-config
     ports:
       - 7878:7878
     restart: unless-stopped
-    networks:
-      - internal_network
     depends_on:
       - setup
 
@@ -92,11 +81,7 @@ services:
     container_name: lidarr
     environment: *env-vars
     volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: lidarr_config
+      - /home/ubuntuserver/local_configs/lidarr_config:/config
       - type: volume
         source: arrstack_data
         target: /music
@@ -106,8 +91,6 @@ services:
     ports:
       - 8686:8686
     restart: unless-stopped
-    networks:
-      - internal_network
     depends_on:
       - setup
 
@@ -116,19 +99,13 @@ services:
     container_name: bazarr
     environment: *env-vars
     volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: bazarr_config
+      - /home/ubuntuserver/local_configs/bazarr_config:/config
       - *tv-volume-config
       - *movies-volume-config
       - *downloads-volume-config
     ports:
       - 6767:6767
     restart: unless-stopped
-    networks:
-      - internal_network
     depends_on:
       - setup
 
@@ -138,11 +115,7 @@ services:
     container_name: readarr
     environment: *env-vars
     volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: readarr_config
+      - /home/ubuntuserver/local_configs/readarr_config:/config
       - type: volume
         source: arrstack_data
         target: /books
@@ -152,8 +125,6 @@ services:
     ports:
       - 8787:8787
     restart: unless-stopped
-    networks:
-      - internal_network
     depends_on:
       - setup
  
@@ -162,16 +133,10 @@ services:
     container_name: prowlarr
     environment: *env-vars
     volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: prowlarr_config
+      - /home/ubuntuserver/local_configs/prowlarr_config:/config
     ports:
       - 9696:9696
     restart: unless-stopped
-    networks:
-      - internal_network
     depends_on:
       - setup
   
@@ -180,18 +145,12 @@ services:
     container_name: jellyfin
     environment: *env-vars
     volumes:
-      - type: volume
-        source: configs
-        target: /config
-        volume:
-          subpath: jellyfin_config
+      - /home/ubuntuserver/local_configs/jellyfin_config:/config
       - *tv-volume-config
       - *movies-volume-config
     ports:
       - 8096:8096
     restart: unless-stopped
-    networks:
-      - internal_network
     depends_on:
       - setup
   
@@ -232,22 +191,20 @@ services:
 #      restart: unless-stopped
 #
 
-networks:
-  internal_network:
-    driver: bridge
 
 volumes:
-  configs:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=192.168.0.39,rw,nfsvers=4
-      device: ":/mnt/tank/set1/configs"
+# Skipping NFS config as it seem to fuck with the SQL databases. Read and write time are huuuge too :(
+#  configs:
+#    driver: local
+#    driver_opts:
+#      type: "nfs"
+#      o: "addr=192.168.0.39,rw,nfsvers=3"
+#      device: ":/mnt/tank/set1/configs,nolock,noatime"
 
   arrstack_data:
     driver: local
     driver_opts:
-      type: nfs
-      o: addr=192.168.0.39,rw,nfsvers=4
+      type: "nfs"
+      o: "addr=192.168.0.39,rw,nfsvers=3,nolock,noatime"
       device: ":/mnt/tank/set1/arrstack_data"
 
